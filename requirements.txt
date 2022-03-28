@@ -1,5 +1,5 @@
-python-kucoin
-TA-Lib
+python-binance
+ta
 numpy
 websocket-client
 SQLAlchemy
