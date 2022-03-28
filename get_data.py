@@ -62,11 +62,5 @@ def on_message(ws, message):
     #add to live database    
     df.to_sql('testingstream', engine, if_exists='append', index=True)
     
-    #format database - adding buy triggers
-    # db = pd.read_sql('testingstream', engine)
-    # applytech(db)
-    # inst = Signals(db, 5)
-    # inst.decide()
-
 ws = websocket.WebSocketApp(SOCKET, on_open=on_open, on_close=on_close, on_message=on_message)
 ws.run_forever()
