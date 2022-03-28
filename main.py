@@ -1,8 +1,13 @@
-from distutils.debug import DEBUG
-import sqlalchemy, time, ta, os, logging
-import pandas as pd
-import numpy as np
+import logging
+import os
+import time
 import warnings
+from distutils.debug import DEBUG
+
+import numpy as np
+import pandas as pd
+import sqlalchemy
+import ta
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
