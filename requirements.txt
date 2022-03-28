@@ -2,3 +2,4 @@ python-kucoin
 TA-Lib
 numpy
 websocket-client
+SQLAlchemy
