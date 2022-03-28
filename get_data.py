@@ -54,7 +54,7 @@ def on_close(ws):
     print('closed connection')
 
 def on_message(ws, message):
-    # print('received message')
+    # printing received messages
     respond = json.loads(message)
     candle = respond['k']
     df = format_df([candle])
