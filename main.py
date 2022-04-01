@@ -52,11 +52,12 @@ def strategy(qty, open_position=False):
     inst.decide()
     os.system('cls')
     print(f'current Close price of {symbol} is ' + str(df.Close.iloc[-1]))
+
     if df.Buy.iloc[-1]:
         buy_price = df.Close.iloc[-1]
         logger.info(f"Executed BUY signal at {buy_price}")
         #insert binance BUY order
-        print('BUY BTC right now!!')        
+        print(f'BUY {symbol} right now!!')        
 
         open_position = True
 
@@ -73,7 +74,7 @@ def strategy(qty, open_position=False):
                 sell_price = df.Close.iloc[-1]
                 logger.info(f"Executed SELL signal at {sell_price}")
                 #insert binance SELL order
-                print("SELL BTC NOW!!")
+                print(f"SELL {symbol} NOW!!")
                 break
 
 while True:
