@@ -12,10 +12,10 @@ import ta
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 LOG_FORMAT = "%(asctime)s - %(message)s"
-logging.basicConfig(filename='D:\Python_Projects\kucoin-RSI-bot\RSI-bot\order_log.log', level=logging.DEBUG, format=LOG_FORMAT)
+logging.basicConfig(filename='', level=logging.DEBUG, format=LOG_FORMAT)
 logger = logging.getLogger()
 
-engine = sqlalchemy.engine.create_engine('sqlite:///testingstream.db')
+engine = sqlalchemy.engine.create_engine('sqlite:///DataStream.db')
 
 symbol = 'btcusdt'
 interval = '1m'
@@ -46,7 +46,7 @@ def applytech(df):
     df.dropna(inplace=False)
 
 def strategy(qty, open_position=False):
-    df = pd.read_sql('testingstream', engine)
+    df = pd.read_sql('DataStream', engine)
     applytech(df)
     inst = Signals(df, 15)
     inst.decide()
