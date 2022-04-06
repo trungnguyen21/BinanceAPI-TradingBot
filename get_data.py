@@ -11,25 +11,7 @@ engine = sqlalchemy.engine.create_engine('sqlite:///testingstream.db')
 symbol = 'btcusdt'
 interval = '1m'
 
-SOCKET = f"wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}"
-
-class Signals:
-    def __init__(self, df, lags):
-        self.df = df
-        self.lags = lags
-    
-    def gettrigger(self):
-        dfx = pd.DataFrame()
-        for i in range(self.lags + 1):
-            mask = (self.df['%K'].shift(i) < 20) & (self.df['%D'].shift(i) < 20)
-            dfx = dfx.append(mask, ignore_index=True)
-        return dfx.sum(axis=0)
-
-    def decide(self):
-        self.df['trigger'] = np.where(self.gettrigger(), 1, 0)
-        self.df['Buy'] = np.where((self.df.trigger) & 
-        (self.df['%K'].between(20,80)) & (self.df['%D'].between(20,80)) &
-        (self.df.rsi > 60) & (self.df.macd > 0), 1, 0) 
+SOCKET = f"wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}" 
 
 def format_df(msg):
     frame = pd.DataFrame(msg)
@@ -39,13 +21,6 @@ def format_df(msg):
     frame.index = pd.to_datetime(frame.index, unit='ms')
     frame = frame.astype(float)
     return frame
-
-def applytech(df):
-    df['%K'] = ta.momentum.stoch(df.High, df.Low, df.Close, window=14, smooth_window=3)
-    df['%D'] = df['%K'].rolling(3).mean()
-    df['rsi'] = ta.momentum.rsi(df.Close, window=14)
-    df['macd'] = ta.trend.macd_diff(df.Close)
-    df.dropna(inplace=True)
  
 def on_open(ws):
     print('opened connection')
