@@ -8,18 +8,25 @@ import numpy as np
 import pandas as pd
 import sqlalchemy
 import ta
+from binance import Client
 
+client = Client(api_key='', api_secret='', testnet=False)
+
+# ignore future warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+# create logging file to keep track of trades
 LOG_FORMAT = "%(asctime)s - %(message)s"
 logging.basicConfig(filename='', level=logging.DEBUG, format=LOG_FORMAT)
 logger = logging.getLogger()
 
+# create sql database
 engine = sqlalchemy.engine.create_engine('sqlite:///DataStream.db')
 
 symbol = 'btcusdt'
 interval = '1m'
 
+# establish signals
 class Signals:
     def __init__(self, df, lags):
         self.df = df
@@ -38,6 +45,7 @@ class Signals:
         (self.df['%K'].between(20,80)) & (self.df['%D'].between(20,80)) &
         (self.df.rsi > 60) & (self.df.macd > 0), 1, 0)
 
+# applying indicators from ta library
 def applytech(df):
     df['%K'] = ta.momentum.stoch(df.High, df.Low, df.Close, window=14, smooth_window=3)
     df['%D'] = df['%K'].rolling(3).mean()
@@ -45,7 +53,8 @@ def applytech(df):
     df['macd'] = ta.trend.macd_diff(df.Close)
     df.dropna(inplace=False)
 
-def strategy(qty, open_position=False):
+# main script
+def strategy(symbol, qty, open_position=False):
     df = pd.read_sql('DataStream', engine)
     applytech(df)
     inst = Signals(df, 15)
@@ -56,8 +65,9 @@ def strategy(qty, open_position=False):
     if df.Buy.iloc[-1]:
         buy_price = df.Close.iloc[-1]
         logger.info(f"Executed BUY signal at {buy_price}")
-        #insert binance BUY order
-        print(f'BUY {symbol} right now!!')        
+        # insert binance BUY order
+        order = client.order_market_buy(symbol, qty)
+        print(f'Bought {qty} of {symbol}! Order details:\n {order}')        
 
         open_position = True
 
@@ -73,10 +83,12 @@ def strategy(qty, open_position=False):
             if df.Close.iloc[-1] <= buy_price * 0.995 or df.Close.iloc[-1] >= buy_price* 1.002:
                 sell_price = df.Close.iloc[-1]
                 logger.info(f"Executed SELL signal at {sell_price}")
-                #insert binance SELL order
-                print(f"SELL {symbol} NOW!!")
+                # insert binance SELL order
+                order = client.order_market_sell(symbol, qty)
+                print(f'Sold {qty} of {symbol}! Order details:\n {order}')        
                 break
 
-while True:
-    strategy(0.001)
-    time.sleep(1)
+if __name__ == '__main__':
+    while True:
+        strategy(symbol, 0.001)
+        time.sleep(1)
